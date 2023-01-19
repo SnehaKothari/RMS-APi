@@ -1,0 +1,8 @@
+﻿
+1) create database student
+2) create table logininfo 
+	querry:create table logininfo (id serial PRIMARY KEY,email_id VARCHAR not null ,password VARCHAR not null, usertype VARCHAR not null);
+3) create table requisition
+	querry:create table requisition (id serial PRIMARY key ,role VARCHAR not null,jobdescription VARCHAR not null,skillset VARCHAR not null,requiredexperience VARCHAR not null,qualification VARCHAR not null,vacancies int not null)
+4) create table resumes
+	querry : create table resumes (id serial PRIMARY key, resume_name VARCHAR,matched_jd VARCHAR,probability_matching VARCHAR)

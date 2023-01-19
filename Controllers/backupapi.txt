@@ -1,0 +1,53 @@
+﻿// csv download 
+
+
+        #region Download Requisition csv
+
+        [HttpGet]
+        [Route("dashboard/Requisition/Download_Requisition_csv")]
+        public async Task<IActionResult> get_requisition()
+        {
+            string Query = "select * from "+_databaseschema+".requisition";
+            List<Requisition> req = new List<Requisition>();
+           
+            try
+            {
+                await using (Npgsql.NpgsqlConnection con = new Npgsql.NpgsqlConnection(_DbConnection))
+                {
+                    await using (Npgsql.NpgsqlCommand cmd = new Npgsql.NpgsqlCommand(Query, con))
+                    {
+                        await con.OpenAsync().ConfigureAwait(false);
+                        NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(cmd);
+                        DataSet ds = new DataSet();
+                        adapter.Fill(ds);
+                        string csvdata = TransformTableToCsv(ds.Tables[0]);
+                        var FillBytes = Encoding.UTF8.GetBytes(csvdata);
+                        return File(FillBytes, "text/csv", "requisition.csv");
+                    }
+               }
+            }
+            catch (Npgsql.NpgsqlException ex)
+            {
+                throw new Exception($"Not able to get requistion csv {ex}");
+            }
+            
+        }
+        private string TransformTableToCsv(DataTable dataTable)
+        {
+           
+            StringBuilder csv = new StringBuilder();
+            IEnumerable<string> ColumnNames = dataTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName);
+            csv.AppendLine(string.Join(',', ColumnNames));
+            
+            foreach (DataRow row in dataTable.Rows)
+            {
+                IEnumerable<string> fields = row.ItemArray.Select
+                    (x => string.Concat("\"", x.ToString().Replace("\"", "\"\""), "\""));
+                csv.AppendLine(string.Join(',', fields));
+
+            }
+       
+            return csv.ToString();
+        }
+
+        #endregion
